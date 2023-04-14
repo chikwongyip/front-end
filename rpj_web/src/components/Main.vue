@@ -1,11 +1,13 @@
 <template>
-
+  <section>
+    main
+  </section>
 </template>
 
 <script>
-export default {
-  name: "Admin"
-}
+  export default {
+  }
+
 </script>
 
 <style scoped>
