@@ -1,5 +1,8 @@
 import Login from '../views/UserLogin'
 import Admin from "@/views/AdminIndex";
+import MainPage from "@/components/MainPage";
+import BrandList from "@/components/BrandList";
+
 let routes = [
     {
         path:'/login',
@@ -7,7 +10,12 @@ let routes = [
     },
     {
         path:'/admin',
-        component: Admin
+        component: Admin,
+        children:[
+            { path:'main',component:MainPage },
+            { path: 'brand',component: BrandList},
+
+        ]
     }
 ];
 export default routes;

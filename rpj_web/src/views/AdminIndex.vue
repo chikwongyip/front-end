@@ -4,33 +4,26 @@
 
     </el-header>
     <el-aside class="sideBar">
-      <el-menu :default-openeds="['1','8']">
-        <el-submenu index="1">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="2">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="3">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="4">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="5">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="6">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="7">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
-        <el-submenu index="8">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-        </el-submenu>
+      <el-menu :default-active="$route.path" class="el-menu-vertical-demo" router @select="handleMenuSelect">
+        <el-menu-item index="/admin/company" class="sideBarItem">
+          <i class="el-icon-menu"></i>Company
+        </el-menu-item>
+        <el-menu-item index="/admin/brand" class="sideBarItem">
+          <i class="el-icon-menu"></i>Brand
+        </el-menu-item>
+        <el-menu-item index="/admin/category" class="sideBarItem">
+          <i class="el-icon-menu"></i>Category
+        </el-menu-item>
+        <el-menu-item index="/admin/product" class="sideBarItem">
+          <i class="el-icon-menu"></i>Product
+        </el-menu-item>
       </el-menu>
     </el-aside>
+    <el-container>
+    <el-main class="main">
+      <router-view></router-view>
+    </el-main>
+  </el-container>
   </el-container>
 
 </template>
@@ -38,7 +31,12 @@
 <script>
 export default {
   // TODO:LOGO
-  name: "AdminIndex"
+  name: "AdminIndex",
+  methods:{
+    handleMenuSelect(route){
+      this.$router.push(route);
+    }
+  }
 }
 </script>
 
@@ -50,14 +48,18 @@ export default {
     bottom: 0px;
     width: 100%;
     border: 1px solid red;
-    line-height: 40px;
     .header{
       text-align:right;
       font-size:12px;
+      border:1px solid blue;
     }
     .sideBar{
       width: 200px;
+      border:1px solid green;
       background-color: rgb(238, 241, 246);
+    }
+    .sideBarItem{
+      text-align: left;
     }
   }
 </style>
