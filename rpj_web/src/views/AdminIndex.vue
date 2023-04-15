@@ -1,8 +1,5 @@
 <template>
   <el-container class="container">
-    <el-header class="header">
-
-    </el-header>
     <el-aside class="sideBar">
       <el-menu :default-active="$route.path" class="el-menu-vertical-demo" router @select="handleMenuSelect">
         <el-menu-item index="/admin/company" class="sideBarItem">
@@ -20,10 +17,12 @@
       </el-menu>
     </el-aside>
     <el-container>
-    <el-main class="main">
-      <router-view></router-view>
-    </el-main>
-  </el-container>
+      <el-header class="header">
+      </el-header>
+      <el-main class="main">
+        <router-view></router-view>
+      </el-main>
+    </el-container>
   </el-container>
 
 </template>
