@@ -1,11 +1,8 @@
 <template>
   <el-table :data="brandList">
-    <el-table-column prop="date" label="日期" width="140">
-    </el-table-column>
-    <el-table-column prop="name" label="姓名" width="120">
-    </el-table-column>
-    <el-table-column prop="address" label="地址">
-    </el-table-column>
+    <el-table-column prop="brand_id" label="品牌ID" width="140"></el-table-column>
+    <el-table-column prop="brand_image" label="品牌Logo" width="120"></el-table-column>
+    <el-table-column prop="brand_name" label="品牌名称"></el-table-column>
   </el-table>
 </template>
 
@@ -25,8 +22,16 @@ export default {
     }
   },
   mounted() {
-    this.brandList = this.getData()
-    console.log(this.brandList)
+    this.getData()
+        .then(response => {
+         if (response.data.errno === 0){
+           this.brandList = response.data.data
+         }
+         //TODO:加载失败
+    })
+        .catch(error => {
+          console.log(error)
+        })
   }
 }
 </script>
