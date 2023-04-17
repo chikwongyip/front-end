@@ -18,6 +18,11 @@
     <el-form-item label="email" class="item">
       <el-input v-model="company.email"  class="name"></el-input>
     </el-form-item>
+    <el-form-item label = "upload_logo">
+      <upload-file @upload-success="handleSuccess">
+
+      </upload-file>
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="onSubmit">修改</el-button>
       <el-button>取消</el-button>
@@ -26,10 +31,13 @@
 </template>
 
 <script>
+import UploadFile from "@/components/UploadFile";
 export default {
   name: "CompanyDetails",
+  components: { UploadFile },
   data() {
     return {
+      uploadFileName:'',
       company: {
         name: '',
         description: '',
@@ -45,6 +53,9 @@ export default {
   methods: {
     onSubmit() {
       console.log('submit!');
+    },
+    handleSuccess(response) {
+      this.uploadFileName = response.filename
     }
   }
 }
