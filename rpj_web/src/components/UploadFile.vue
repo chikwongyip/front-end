@@ -1,10 +1,9 @@
 <template>
   <el-upload
       class="avatar-uploader"
-      action="{uploadUrl}"
+      action="http://localhost:8001/public/upload/"
       :on-success="handleSuccess"
       :on-error="handleError"
-      :headers="headers"
       :multiple="true"
       :show-file-list="false">
     <i class="el-icon-upload"></i>
@@ -18,10 +17,8 @@ export default {
   name: "UploadFile",
   data() {
     return {
-      uploadUrl: 'C:\\Users\\chikwongyip\\Downloads\\', // 上传文件的接口地址
-      headers: { // 设置请求头
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
+      uploadUrl: 'http://localhost:8001/public/upload/', // 上传文件的接口地址
+      fileList:[],
     };
   },
   methods: {

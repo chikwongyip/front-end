@@ -59,6 +59,7 @@ export default {
     }
     .sideBarItem{
       text-align: left;
+
     }
   }
 </style>
