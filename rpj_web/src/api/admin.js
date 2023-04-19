@@ -3,6 +3,7 @@ let base = "http://localhost:8000/api";
 // TODO:handle brandList select insert update delete
 export const getBrandList = params => { return axios.get(`${base}/admin/brandList`, { params: params })}
 export const deleteBrand = params => { return axios.post(`${base}/admin/brandDelete`,params ) }
+export const updateBrand = params => { return axios.post(`${base}/admin/brandUpdate`,params) }
 //TODO:handle categoryList select insert update delete
 export const getCategoryList = params => { return axios.get(`${base}/admin/categoryList`,{params:params})}
 //TODO:handle productList select insert update delete
