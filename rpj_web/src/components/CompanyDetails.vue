@@ -18,7 +18,7 @@
     <el-form-item label="email" class="item">
       <el-input v-model="company.email"  class="name"></el-input>
     </el-form-item>
-    <el-form-item label = "upload_logo">
+    <el-form-item label = "upload_logo" class="item">
       <upload-file @upload-success="handleSuccess">
 
       </upload-file>
@@ -65,9 +65,10 @@ export default {
 <style scoped>
   .company_form{
     label-width:80px;
-    text-align:left;
+
     .item{
       width:100px;
+      vertical-align: left;
       .name{
         width: 200px;
       }

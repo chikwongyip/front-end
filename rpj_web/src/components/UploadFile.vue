@@ -18,7 +18,7 @@ export default {
   name: "UploadFile",
   data() {
     return {
-      uploadUrl: 'http://localhost:8001/api/admin/upload', // 上传文件的接口地址
+      uploadUrl: 'C:\\Users\\chikwongyip\\Downloads\\', // 上传文件的接口地址
       headers: { // 设置请求头
         Authorization: 'Bearer ' + localStorage.getItem('token'),
       },
