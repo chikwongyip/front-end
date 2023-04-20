@@ -26,7 +26,7 @@
         </template>
       </el-table-column>
     </el-table>
-
+<!--编辑界面-->
     <el-dialog title="编辑" v-model="brandEdit" :close-on-click-modal="false">
       <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
         <el-form-item label="品牌id" prop="brand_id">
@@ -37,15 +37,28 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="editFormVisible = false">取消</el-button>
+        <el-button @click.native="brandEdit = false">取消</el-button>
         <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+      </div>
+    </el-dialog>
+<!-- 新增界面   -->
+    <el-dialog title="新增" v-model="brandAdd" :close-on-click-modal="false">
+      <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+        <el-form-item label="品牌名称" prop="brand_name">
+          <el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="addForm = false">取消</el-button>
+        <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
       </div>
     </el-dialog>
   </section>
 </template>
 
 <script>
-import { getBrandList,deleteBrand,updateBrand } from "@/api/admin";
+//TODO:规范化变量名
+import { getBrandList,deleteBrand,updateBrand,addBrand } from "@/api/admin";
 
 export default {
   name:"BrandList",
@@ -58,15 +71,26 @@ export default {
       sels:[],
       //edit
       brandEdit:false,
-      editloading:false,
+      editLoading:false,
       editFormRules:{
         brand_name:[
-          {requrie:true,message:"请输入品牌名称", trigger:'blur'}
+          { requrie:true,message:"请输入品牌名称", trigger:'blur' }
         ]
       },
       editForm:{
         brand_id:"",
         brand_name:""
+      },
+    //  add
+      brandAdd:false,
+      addLoading:false,
+      addForm:{
+        brand_name:""
+      },
+      addFormRules:{
+        brand_name:[
+          { requrie:true,message:"请输入品牌名称", trigger:'blur' }
+        ]
       }
     }
   },
@@ -104,29 +128,60 @@ export default {
       this.selectID = null
     },
     handleEdit(brand_id,row){
-      this.brandListEdit = true
+      this.brandEdit = true
       this.editForm = Object.assign({},row)
     },
+    handleAdd(){
+      this.brandAdd = true
+      this.addForm = {
+        brand_name: ""
+      }
+    },
     editSubmit(){
-      this.$refs.editForm.validate(
-          (isValid) => {
-            if(isValid){
+      this.$refs.editForm.validate((isValid) =>{
+            if (isValid){
               this.$confirm("确认提交吗？","提示",{}).then(
                   () => {
-                    this.editloading = true
-                    let para = object.assign({},this.editForm)
-                    updateBrand(para).then( res => {
-                          this.editloading = false
-                          if (res.errno === 0){
-                            this.$message({ message:"提交成功", type:"success"})
-                        }
-                    )
+                    this.brandEdit = true
+                    let para = Object.assign({},this.editForm)
+                    updateBrand(para).then((response) =>{
+                      this.brandEdit = false
+                      this.$message({
+                        message:"提交成功",
+                        type:"success"
+                      })
+                      this.$refs["editForm"].resetFields()
+                      this.brandEdit = false
+                      this.getData()
+                    })
 
                   }
               )
             }
           }
       )
+    },
+    addSubmit(){
+      this.$refs.addForm.validate((isValid) => {
+        if(isValid){
+          this.$confirm("确认提交？","提示",{}).then(() => {
+            this.addLoading = true;
+            let para = Object.assign({},this.addForm)
+            addBrand(para).then((response) => {
+              if (response.data.errno === 0){
+                this.addLoading = false
+                this.$message({
+                  message:"提交成功",
+                  type:"success"
+                })
+                this.$refs['addForm'].resetFields()
+                this.addForm = false
+                this.getData()
+              }
+            })
+          })
+        }
+      })
     }
   },
   mounted() {
