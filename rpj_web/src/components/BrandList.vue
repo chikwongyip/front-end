@@ -15,7 +15,7 @@
         </el-form-item>
       </el-form>
     </el-col>
-    <el-table :data="brandList" highlight-current-row v-loading="brandListLoading" @selection-change="handleSelectionChange">
+    <el-table :data="brandList" highlight-current-row v-loading="listLoading" @selection-change="handleSelectionChange">
       <el-table-column prop="brand_id" label="品牌ID" width="140"></el-table-column>
       <el-table-column prop="brand_image" label="品牌Logo" width="120"></el-table-column>
       <el-table-column prop="brand_name" label="品牌名称"></el-table-column>
@@ -27,7 +27,7 @@
       </el-table-column>
     </el-table>
 <!--编辑界面-->
-    <el-dialog title="编辑" v-model="brandEdit" :close-on-click-modal="false">
+    <el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
       <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
         <el-form-item label="品牌id" prop="brand_id">
           <el-input v-model="editForm.brand_id" auto-complete="off"></el-input>
@@ -37,12 +37,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="brandEdit = false">取消</el-button>
+        <el-button @click.native="editFormVisible = false">取消</el-button>
         <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
       </div>
     </el-dialog>
 <!-- 新增界面   -->
-    <el-dialog title="新增" v-model="brandAdd" :close-on-click-modal="false">
+    <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
       <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
         <el-form-item label="品牌名称" prop="brand_name">
           <el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
@@ -65,28 +65,32 @@ export default {
   data(){
     return{
       //list
-      brandList:[],
-      brandListLoading:false,
-      selectID: null,
-      sels:[],
+      brandList:[],      //列表内容
+      listLoading:false,//加载动画
+      selectID: "",
+      selectedList:[],
       //edit
-      brandEdit:false,
-      editLoading:false,
+      editFormVisible:false, //编辑界面显示控制
+      editLoading:false,     //编辑加载画面
+      //编辑校验
       editFormRules:{
         brand_name:[
           { requrie:true,message:"请输入品牌名称", trigger:'blur' }
         ]
       },
+      // 编辑后返回内容
       editForm:{
-        brand_id:"",
+        brand_id:"",   //不可编辑
         brand_name:""
       },
     //  add
-      brandAdd:false,
-      addLoading:false,
+      addFormVisible:false, //添加界面显示控制
+      addLoading:false,     //添加加载画面
+      //添加内容
       addForm:{
         brand_name:""
       },
+      //校验规则
       addFormRules:{
         brand_name:[
           { requrie:true,message:"请输入品牌名称", trigger:'blur' }
@@ -100,7 +104,7 @@ export default {
       let para = {
         brand_name:this.filter.brand_name
       }
-      this.brandListLoading = true
+      this.listLoading= true
       getBrandList(para).then((res) => {
         if(res.data.errno === 0){
           this.brandList = res.data.data
@@ -109,16 +113,15 @@ export default {
         }
       })
     },
-    handleSelectionChange(sels){
-      this.sels = sels
-
+    handleSelectionChange(selected){
+      this.selectedList = selected
     },
     handleDel(){
       if (this.selectID){
         this.$confirm('确认删除该记录吗？','提示',{type:"warning"}
         ).then(() => {
           deleteBrand(this.selectID).then(result =>{
-            if(result.errno === 0){
+            if(result.data.errno === 0){
               console.log("delete success")
             }
             console.log("delete fail")
