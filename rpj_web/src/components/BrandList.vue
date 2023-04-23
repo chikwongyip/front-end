@@ -27,13 +27,13 @@
       </el-table-column>
     </el-table>
 <!--编辑界面-->
-    <el-dialog title="编辑" v-show="editFormVisible" :close-on-click-modal="false">
+    <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false" >
       <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-        <el-form-item label="品牌id" prop="brand_id">
-          <el-input v-model="editForm.brand_id" auto-complete="off"></el-input>
+        <el-form-item label="id">
+          <el-input v-model="editForm.brand_id" autocomplete="off" :disabled="true"></el-input>
         </el-form-item>
-        <el-form-item label="品牌名称" prop="brand_name">
-          <el-input v-model="editForm.brand_name" auto-complete="off"></el-input>
+        <el-form-item label="品牌名称">
+          <el-input v-model="editForm.brand_name" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -67,6 +67,7 @@ export default {
       filters:{
         brand_name:''
       },
+      dialogHeight:'auto',
       //list
       brandList:[],      //列表内容
       listLoading:false,//加载动画
@@ -83,8 +84,8 @@ export default {
       },
       // 编辑后返回内容
       editForm:{
-        brand_id:"123",   //不可编辑
-        brand_name:""
+        brand_id:'',   //不可编辑
+        brand_name:''
       },
     //  add
       addFormVisible:false, //添加界面显示控制
@@ -139,6 +140,7 @@ export default {
       // console.log("test")
       this.editForm = Object.assign({},row)
       this.editFormVisible = true
+      this.dialogHeight = this.$refs.editForm.$el.scrollHeight + 'px'
       // this.editForm.brand_id = Object.assign({},row).brand_id
       // this.editForm.brand_name = Object.assign({},row).brand_name
       // console.log(this.editForm)
@@ -154,20 +156,26 @@ export default {
             if (isValid){
               this.$confirm("确认提交吗？","提示",{}).then(
                   () => {
-                    this.brandEdit = true
+                    this.editLoading = true
                     let para = Object.assign({},this.editForm)
+                    console.log(para)
                     updateBrand(para).then((response) =>{
-                      this.brandEdit = false
+                      this.editLoading = false
+                      console.log(response.data)
                       if(response.data.errno === 0){
                         this.$message({
                           message:"提交成功",
                           type:"success"
                         })
                         this.$refs["editForm"].resetFields()
-                        this.brandEdit = false
+                        this.editLoading= false
                         this.getData()
                       }
                     })
+                        .then(error => {
+                          this.editLoading= false
+                          console.log(error)
+                        })
 
                   }
               )
