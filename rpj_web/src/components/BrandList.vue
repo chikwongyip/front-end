@@ -21,13 +21,13 @@
       <el-table-column prop="brand_name" label="品牌名称"></el-table-column>
       <el-table-column label="操作" width="150">
         <template scope="scope">
-          <el-button size="small" @click="handleEdit(scope.$brand_id, scope.row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDel(scope.$brand_id, scope.row)">删除</el-button>
+          <el-button size="small" @click="handleEdit(scope.index, scope.row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleDel(scope.index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 <!--编辑界面-->
-    <el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
+    <el-dialog title="编辑" v-show="editFormVisible" :close-on-click-modal="false">
       <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
         <el-form-item label="品牌id" prop="brand_id">
           <el-input v-model="editForm.brand_id" auto-complete="off"></el-input>
@@ -64,6 +64,9 @@ export default {
   name:"BrandList",
   data(){
     return{
+      filters:{
+        brand_name:''
+      },
       //list
       brandList:[],      //列表内容
       listLoading:false,//加载动画
@@ -80,7 +83,7 @@ export default {
       },
       // 编辑后返回内容
       editForm:{
-        brand_id:"",   //不可编辑
+        brand_id:"123",   //不可编辑
         brand_name:""
       },
     //  add
@@ -102,12 +105,13 @@ export default {
     getData(){
       //初始化数据 显示list table
       let para = {
-        brand_name:this.filter.brand_name
+        brand_name:this.filters.brand_name
       }
       this.listLoading= true
       getBrandList(para).then((res) => {
         if(res.data.errno === 0){
           this.brandList = res.data.data
+          this.listLoading = false
         }else{
           console.log("加载失败")
         }
@@ -130,9 +134,14 @@ export default {
       }
       this.selectID = null
     },
-    handleEdit(brand_id,row){
-      this.brandEdit = true
+    handleEdit(index,row){
+
+      // console.log("test")
       this.editForm = Object.assign({},row)
+      this.editFormVisible = true
+      // this.editForm.brand_id = Object.assign({},row).brand_id
+      // this.editForm.brand_name = Object.assign({},row).brand_name
+      // console.log(this.editForm)
     },
     handleAdd(){
       this.brandAdd = true
@@ -149,13 +158,15 @@ export default {
                     let para = Object.assign({},this.editForm)
                     updateBrand(para).then((response) =>{
                       this.brandEdit = false
-                      this.$message({
-                        message:"提交成功",
-                        type:"success"
-                      })
-                      this.$refs["editForm"].resetFields()
-                      this.brandEdit = false
-                      this.getData()
+                      if(response.data.errno === 0){
+                        this.$message({
+                          message:"提交成功",
+                          type:"success"
+                        })
+                        this.$refs["editForm"].resetFields()
+                        this.brandEdit = false
+                        this.getData()
+                      }
                     })
 
                   }
