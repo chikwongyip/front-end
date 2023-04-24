@@ -38,7 +38,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click.native="editFormVisible = false">取消</el-button>
-        <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+        <el-button type="primary" @click.native="editSubmit('editForm')" :loading="editLoading">提交</el-button>
       </div>
     </el-dialog>
 <!-- 新增界面   -->
@@ -136,14 +136,8 @@ export default {
       this.selectID = null
     },
     handleEdit(index,row){
-
-      // console.log("test")
       this.editForm = Object.assign({},row)
       this.editFormVisible = true
-      this.dialogHeight = this.$refs.editForm.$el.scrollHeight + 'px'
-      // this.editForm.brand_id = Object.assign({},row).brand_id
-      // this.editForm.brand_name = Object.assign({},row).brand_name
-      // console.log(this.editForm)
     },
     handleAdd(){
       this.brandAdd = true
@@ -151,24 +145,23 @@ export default {
         brand_name: ""
       }
     },
-    editSubmit(){
-      this.$refs.editForm.validate((isValid) =>{
-            if (isValid){
+    editSubmit(formName){
+      this.$refs[formName].validate((valid) =>{
+            if (valid){
               this.$confirm("确认提交吗？","提示",{}).then(
                   () => {
                     this.editLoading = true
-                    let para = Object.assign({},this.editForm)
+                    let para = JSON.stringify(Object.assign({},this.editForm))
                     console.log(para)
                     updateBrand(para).then((response) =>{
                       this.editLoading = false
-                      console.log(response.data)
                       if(response.data.errno === 0){
                         this.$message({
                           message:"提交成功",
                           type:"success"
                         })
-                        this.$refs["editForm"].resetFields()
-                        this.editLoading= false
+                        this.$refs[formName].resetFields()
+                        this.editFormVisible = false
                         this.getData()
                       }
                     })
