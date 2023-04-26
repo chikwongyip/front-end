@@ -136,7 +136,8 @@ export default {
       this.selectID = null
     },
     handleEdit(index,row){
-      this.editForm = Object.assign({},row)
+      this.editForm.brand_id = Object.assign({},row).brand_id
+      this.editForm.brand_name = Object.assign({},row).brand_name
       this.editFormVisible = true
     },
     handleAdd(){
@@ -151,9 +152,9 @@ export default {
               this.$confirm("确认提交吗？","提示",{}).then(
                   () => {
                     this.editLoading = true
-                    let para = JSON.stringify(Object.assign({},this.editForm))
-                    console.log(para)
-                    updateBrand(para).then((response) =>{
+                    let param = JSON.stringify(this.editForm)
+                    // let param = this.editForm
+                    updateBrand(param).then((response) =>{
                       this.editLoading = false
                       if(response.data.errno === 0){
                         this.$message({
@@ -165,10 +166,10 @@ export default {
                         this.getData()
                       }
                     })
-                        .then(error => {
-                          this.editLoading= false
-                          console.log(error)
-                        })
+                        // .then(error => {
+                        //   this.editLoading= false
+                        //
+                        // })
 
                   }
               )
