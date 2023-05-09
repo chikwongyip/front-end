@@ -7,7 +7,6 @@ const headers = {
 // TODO:handle brandList select insert update delete
 export const getBrandList = params => { return axios.get(`${base}/admin/brandList`, { params: params })}
 export const deleteBrand = params => { return axios.post(`${base}/admin/brandDelete`,params ) }
-export const addBrand = params => { return axios.post(`${base}/admin/brandAdd`,params) }
 //TODO:handle categoryList select insert update delete
 export const getCategoryList = params => { return axios.get(`${base}/admin/categoryList`,{params:params})}
 //TODO:handle productList select insert update delete
@@ -20,4 +19,14 @@ export const updateBrand =
     (params) => {
         //console.log(params)
         return axios.post(`${base}/admin/brandUpdate`,params,{headers} )
+    }
+export const addBrand =
+    ( params ) => {
+        return axios.post(`${base}/admin/brandAdd`,params,{ headers })
+    }
+export  const uploadFile =
+    ( params ) => {
+        return axios.post(`${base}/upload`,params,{
+            headers:{'Content-Type':'multipart/form-data'}
+        })
     }

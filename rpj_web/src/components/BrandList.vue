@@ -42,10 +42,23 @@
       </div>
     </el-dialog>
 <!-- 新增界面   -->
-    <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
+    <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
       <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
         <el-form-item label="品牌名称" prop="brand_name">
           <el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-upload
+              class="upload-demo"
+              action="http://localhost:8000/api/admin/imgUpload"
+              :before-upload="beforeUpload"
+              :on-successs="handleUpload"
+              :show-file-list="false"
+              :limit="1">
+            <img v-if="previewUrl" :src="previewUrl" style="max-width: 100%">
+            <el-button v-else>选取文件</el-button>
+            <div slot="tip" class="el-upload__tip">JPG/PNG/BMP 图片格式，不超过 5MB</div>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -59,18 +72,17 @@
 <script>
 //TODO:规范化变量名
 import { getBrandList,deleteBrand,updateBrand,addBrand } from "@/api/admin";
-
 export default {
   name:"BrandList",
   data(){
     return{
+      previewUrl:'',
       filters:{
         brand_name:''
       },
       dialogHeight:'auto',
-      //list
-      brandList:[],      //列表内容
-      listLoading:false,//加载动画
+      brandList:[],             //列表内容
+      listLoading:false,        //加载动画
       selectID: "",
       selectedList:[],
       //edit
@@ -92,12 +104,16 @@ export default {
       addLoading:false,     //添加加载画面
       //添加内容
       addForm:{
-        brand_name:""
+        brand_name:"",
+        image:null
       },
       //校验规则
       addFormRules:{
         brand_name:[
-          { requrie:true,message:"请输入品牌名称", trigger:'blur' }
+          { requrie:true,message:"请输入品牌名称", trigger:'blur' },
+        ],
+        imageUrl:[
+          { requrie:true,message:"请上传图片", trigger:'blur' },
         ]
       }
     }
@@ -141,7 +157,8 @@ export default {
       this.editFormVisible = true
     },
     handleAdd(){
-      this.brandAdd = true
+
+      this.addFormVisible = true
       this.addForm = {
         brand_name: ""
       }
@@ -166,11 +183,6 @@ export default {
                         this.getData()
                       }
                     })
-                        // .then(error => {
-                        //   this.editLoading= false
-                        //
-                        // })
-
                   }
               )
             }
@@ -182,7 +194,8 @@ export default {
         if(isValid){
           this.$confirm("确认提交？","提示",{}).then(() => {
             this.addLoading = true;
-            let para = Object.assign({},this.addForm)
+            let para = JSON.stringify(this.addForm)
+            console.log(para)
             addBrand(para).then((response) => {
               if (response.data.errno === 0){
                 this.addLoading = false
@@ -198,6 +211,24 @@ export default {
           })
         }
       })
+    },
+    // 上传文件之前 将图片转换为16进制格式
+    beforeUpload(file){
+      const isJPG = file.type === 'image/jpeg';
+      const isPNG = file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG && !isPNG) {
+        this.$message.error('仅支持JPG和PNG格式图片！');
+        return false;
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过2MB！');
+        return false;
+      }
+      return true;
+    },
+    handleUpload(response){
+      this.addForm.image = response.data.filePath
     }
   },
   mounted() {
