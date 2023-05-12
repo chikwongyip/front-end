@@ -50,11 +50,12 @@
         <el-form-item>
           <el-upload
               class="upload-demo"
-              action="http://localhost:8000/api/admin/imgUpload"
+              name="file"
+              action=""
               :before-upload="beforeUpload"
-              :on-successs="handleUpload"
               :show-file-list="false"
-              :limit="1">
+              :http-request="uploadFile"
+              ref="file">
             <img v-if="previewUrl" :src="previewUrl" style="max-width: 100%">
             <el-button v-else>选取文件</el-button>
             <div slot="tip" class="el-upload__tip">JPG/PNG/BMP 图片格式，不超过 5MB</div>
@@ -77,6 +78,7 @@ export default {
   data(){
     return{
       previewUrl:'',
+      formData:{},
       filters:{
         brand_name:''
       },
@@ -105,7 +107,7 @@ export default {
       //添加内容
       addForm:{
         brand_name:"",
-        image:null
+        image:{}
       },
       //校验规则
       addFormRules:{
@@ -189,23 +191,26 @@ export default {
           }
       )
     },
+    uploadFile(file){
+      this.formData = new FormData
+      this.formData.append("brand_name",this.addForm.brand_name)
+      this.formData.append("file",file.file)
+    },
     addSubmit(){
       this.$refs.addForm.validate((isValid) => {
         if(isValid){
           this.$confirm("确认提交？","提示",{}).then(() => {
             this.addLoading = true;
-            let para = JSON.stringify(this.addForm)
-            console.log(para)
-            addBrand(para).then((response) => {
-              if (response.data.errno === 0){
-                this.addLoading = false
-                this.$message({
-                  message:"提交成功",
-                  type:"success"
-                })
-                this.$refs['addForm'].resetFields()
-                this.addForm = false
-                this.getData()
+            addBrand(this.formData).then((response) => {
+            if (response.data.errno === 0){
+              this.addLoading = false
+              this.$message({
+                message:"提交成功",
+                type:"success"
+              })
+              this.$refs['addForm'].resetFields()
+              this.addLoading= false
+              this.getData()
               }
             })
           })
@@ -225,10 +230,8 @@ export default {
         this.$message.error('上传图片大小不能超过2MB！');
         return false;
       }
+      this.addForm.image = file.file
       return true;
-    },
-    handleUpload(response){
-      this.addForm.image = response.data.filePath
     }
   },
   mounted() {
