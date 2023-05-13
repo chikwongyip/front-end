@@ -34,8 +34,7 @@
         :page-sizes="[10, 20, 30, 40]"
         :background="true"
         @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-    >
+        @size-change="handleSizeChange">
     </el-pagination>
 <!--编辑界面-->
     <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false" >
@@ -80,24 +79,22 @@
     </el-dialog>
   </section>
 </template>
-
 <script>
-//TODO:规范化变量名
+
 import { getBrandList,deleteBrand,updateBrand,addBrand } from "@/api/admin";
 export default {
   name:"BrandList",
   data(){
     return{
-      previewUrl:'',
-      formData:{},
+      previewUrl:'',           //图片预览URL
+      formData:{},             //发送附件 formData
       filters:{
-        brand_name:''
+        brand_name:''          //根据条件查询
       },
-      dialogHeight:'auto',
-      data:[],             //列表内容
-      currentPage:1,
-      pageSize:10,
-      listLoading:false,        //加载动画
+      data:[],                 //请求brand list 获取的所有data
+      currentPage:1,           //当前页
+      pageSize:10,             //每页显示条数
+      listLoading:false,        //加载brand list动画
       selectID: "",
       selectedList:[],
       //edit
@@ -106,7 +103,7 @@ export default {
       //编辑校验
       editFormRules:{
         brand_name:[
-          { requrie:true,message:"请输入品牌名称", trigger:'blur' }
+          { requrie:true,message:"请输入品牌名称", trigger:'blur' }   //校验brand name 是否合法输入
         ]
       },
       // 编辑后返回内容
@@ -127,7 +124,7 @@ export default {
         brand_name:[
           { requrie:true,message:"请输入品牌名称", trigger:'blur' },
         ],
-        imageUrl:[
+        image:[
           { requrie:true,message:"请上传图片", trigger:'blur' },
         ]
       }
@@ -135,19 +132,31 @@ export default {
   },
   methods:{
     getData(){
-      //初始化数据 显示list table
-      let para = {
-        brand_name:this.filters.brand_name
+      //如果filter 位置不为空 则以brand name位置传入
+      let param = {}
+      if (this.filters.brand_name){
+        param = {
+          brand_name:this.filters.brand_name
+        }
       }
       this.listLoading= true
-      getBrandList(para).then((res) => {
+      getBrandList(param).then((res) => {
+        this.listLoading = false
         if(res.data.errno === 0){
           this.data = res.data.data
-          this.listLoading = false
         }else{
-          console.log("加载失败")
+          this.$alert("信息加载失败",{
+            confirmButtonText:"确定"
+          })
         }
       })
+          .catch((err) => {
+            this.listLoading = false
+            this.$message({
+              type:"info",
+              message:`${err} 加载失败,请联系管理员!`
+            })
+          })
     },
     handleSelectionChange(selected){
       this.selectedList = selected
