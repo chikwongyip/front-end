@@ -26,6 +26,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+        :layout="'total, sizes, prev, pager, next, jumper'"
+        :total="data.length"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 30, 40]"
+        :background="true"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+    >
+    </el-pagination>
 <!--编辑界面-->
     <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false" >
       <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
@@ -83,7 +94,9 @@ export default {
         brand_name:''
       },
       dialogHeight:'auto',
-      brandList:[],             //列表内容
+      data:[],             //列表内容
+      currentPage:1,
+      pageSize:10,
       listLoading:false,        //加载动画
       selectID: "",
       selectedList:[],
@@ -129,7 +142,7 @@ export default {
       this.listLoading= true
       getBrandList(para).then((res) => {
         if(res.data.errno === 0){
-          this.brandList = res.data.data
+          this.data = res.data.data
           this.listLoading = false
         }else{
           console.log("加载失败")
@@ -139,16 +152,22 @@ export default {
     handleSelectionChange(selected){
       this.selectedList = selected
     },
-    handleDel(){
-      if (this.selectID){
+    handleDel(index,row){
+      let id = Object.assign({},row).brand_id
+      if (id){
         this.$confirm('确认删除该记录吗？','提示',{type:"warning"}
         ).then(() => {
-          deleteBrand(this.selectID).then(result =>{
+          let param = {
+            brand_id:id
+          }
+          deleteBrand(param).then(result =>{
             if(result.data.errno === 0){
-              console.log("delete success")
+              console.log("delete success " + index + row)
+              this.brandList.splice(index,1)
             }
             console.log("delete fail")
           })
+
         })
       }
       this.selectID = null
@@ -232,10 +251,24 @@ export default {
       }
       this.addForm.image = file.file
       return true;
+    },
+    handleCurrentChange(value){
+      this.currentPage = value;
+    },
+    handleSizeChange(value){
+      this.pageSize = value
     }
   },
   mounted() {
     this.getData()
+  },
+  computed:{
+    brandList(){
+
+      const start = (this.currentPage-1) * this.pageSize
+      const end = start + this.pageSize
+      return this.data.slice(start,end)
+    }
   }
 }
 </script>
