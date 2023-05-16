@@ -273,7 +273,6 @@ export default {
   },
   computed:{
     brandList(){
-
       const start = (this.currentPage-1) * this.pageSize
       const end = start + this.pageSize
       return this.data.slice(start,end)
