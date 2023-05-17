@@ -14,14 +14,16 @@
       </el-form>
     </el-col>
     <el-table :data="productList" highlight-current-row v-loading="listLoading" @selection-change="handleSelectionChange">
+      <el-table-column prop="top" label="置顶标志" width="140"></el-table-column>
       <el-table-column prop="product_id" label="产品id" width="140"></el-table-column>
       <el-table-column prop="brand_id" label="品牌id" width="120"></el-table-column>
       <el-table-column prop="category_id" label="类型id"></el-table-column>
-      <el-table-column prop="product_name" label="产品id" width="140"></el-table-column>
-      <el-table-column prop="brand_name" label="产品id" width="140"></el-table-column>
-      <el-table-column prop="category_name" label="产品id" width="140"></el-table-column>
-      <el-table-column prop="product_desc" label="产品id" width="140"></el-table-column>
-      <el-table-column prop="category_name" label="产品id" width="140"></el-table-column>
+      <el-table-column prop="product_name" label="产品名称" width="140"></el-table-column>
+      <el-table-column prop="brand_name" label="品牌名称" width="140"></el-table-column>
+      <el-table-column prop="category_name" label="类型名称" width="140"></el-table-column>
+      <el-table-column prop="product_desc" label="产品描述" width="140"></el-table-column>
+      <el-table-column prop="product_standard" label="产品标准参数" width="140"></el-table-column>
+      <el-table-column prop="product_model" label="产品型号" width="140"></el-table-column>
     </el-table>
     <el-pagination
         :layout="'total, sizes, prev, pager, next, jumper'"
