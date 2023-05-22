@@ -14,16 +14,16 @@
       </el-form>
     </el-col>
     <el-table :data="productList" highlight-current-row v-loading="listLoading" @selection-change="handleSelectionChange">
-      <el-table-column prop="top" label="置顶标志" width="140"></el-table-column>
-      <el-table-column prop="product_id" label="产品id" width="140"></el-table-column>
-      <el-table-column prop="brand_id" label="品牌id" width="120"></el-table-column>
-      <el-table-column prop="category_id" label="类型id"></el-table-column>
-      <el-table-column prop="product_name" label="产品名称" width="140"></el-table-column>
-      <el-table-column prop="brand_name" label="品牌名称" width="140"></el-table-column>
-      <el-table-column prop="category_name" label="类型名称" width="140"></el-table-column>
-      <el-table-column prop="product_desc" label="产品描述" width="140"></el-table-column>
-      <el-table-column prop="product_standard" label="产品标准参数" width="140"></el-table-column>
-      <el-table-column prop="product_model" label="产品型号" width="140"></el-table-column>
+      <el-table-column prop="top" label="置顶标志" width="100"></el-table-column>
+      <el-table-column prop="product_id" label="产品id" width="100"></el-table-column>
+      <el-table-column prop="brand_id" label="品牌id" width="100"></el-table-column>
+      <el-table-column prop="category_id" label="类型id" width="100"></el-table-column>
+      <el-table-column prop="product_name" label="产品名称" width="150"></el-table-column>
+      <el-table-column prop="brand_name" label="品牌名称" width="150"></el-table-column>
+      <el-table-column prop="category_name" label="类型名称" width="150"></el-table-column>
+      <el-table-column prop="product_desc" label="产品描述" width="1000"></el-table-column>
+      <el-table-column prop="product_standard" label="产品标准参数" width="300"></el-table-column>
+      <el-table-column prop="product_model" label="产品型号" width="80"></el-table-column>
     </el-table>
     <el-pagination
         :layout="'total, sizes, prev, pager, next, jumper'"
@@ -35,6 +35,97 @@
         @current-change="handleCurrentChange"
         @size-change="handleSizeChange">
     </el-pagination>
+    <!--编辑界面-->
+    <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false" >
+      <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+        <el-form-item label="product_id">
+          <el-input v-model="editForm.product_id" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="category_id">
+          <el-input v-model="editForm.category_id" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="brand_id">
+          <el-input v-model="editForm.brand_id" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="产品名称">
+          <el-input v-model="editForm.product_name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="品牌">
+          <el-dropdown split-button type="primary" @command="handleBrandDropDown" :model="brand">
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-model="brand.brand_name"></el-dropdown-item>
+              </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="editFormVisible = false">取消</el-button>
+        <el-button type="primary" @click.native="editSubmit('editForm')" :loading="editLoading">提交</el-button>
+      </div>
+    </el-dialog>
+    <!-- 新增界面   -->
+    <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
+      <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+        <el-form-item label="产品名称" prop="product_name">
+          <el-input v-model="addForm.product_name" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="品牌">
+          <el-dropdown split-button type="primary" @command="handleBrandCommand">
+            {{ selectBrand }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="(item,brand_id) in brand" :key="brand_id" :data-item="brand" :command="item">
+                {{item.brand_name}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+        <el-form-item label="产品类型">
+          <el-dropdown split-button type="primary" @command="handleCategoryCommand">
+            {{ selectCategory }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="(item,category_id) in category" :key="category_id" :data-item="category" :command="item">
+                {{item.category_name}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+        <el-form-item label="产品描述" prop="product_desc">
+          <el-input type="textarea"
+                    placeholder="请输入产品描述"
+                    maxlength="500"
+                    show-word-limit
+                    v-model="addForm.product_desc"
+                    auto-complete="off"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="产品规格" prop="product_standard">
+          <el-input v-model="addForm.product_standard" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="产品型号" prop="product_model">
+          <el-input v-model="addForm.product_model" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-upload
+              action=""
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+              :before-upload="beforeUpload"
+              :http-request="uploadFile"
+              ref="files">
+              <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="uploadVisible">
+            <img width="100%" :src=uploadImageUrl alt="">
+          </el-dialog>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="addForm = false">取消</el-button>
+        <el-button type="primary" @click.native="addSubmit" :loading="addFormLoading">提交</el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -48,15 +139,59 @@ export default {
       filters:{
         product_name:"",
       },
+      selectBrand:"请选择品牌",
+      selectCategory:"请选择产品类型",
       currentPage:1,
       pageSize:10,
       listLoading:false,
       selectList:[],
-      data:[]
+      data:[],
+      images:[],
+      brand:[],
+      category:[],
+      logoUrl:"",
+      previewImgList:[],
+      addFormVisible:false,
+      addFormLoading:false,
+      addForm:{
+        top:"",
+        product_id:"",
+        brand_id:"",
+        category_id:"",
+        product_name:"",
+        product_desc:"",
+        product_standard:"",
+        product_model:""
+      },
+      // 增加校验逻辑
+      addFormRules:{
+        product_name:[
+          { requrie:true,message:"请输入产品名称", trigger:'blur' }   //校验brand name 是否合法输入
+        ]
+      },
+      editFormVisible:false,
+      editLoading:false,
+      editForm:{
+        top:"",
+        product_id:"",
+        brand_id:"",
+        category_id:"",
+        product_name:"",
+        product_desc:"",
+        product_standard:"",
+        product_model:""
+      },
+      //编辑校验
+      editFormRules:{
+        product_name:[
+          { requrie:true,message:"请输入产品名称", trigger:'blur' }   //校验brand name 是否合法输入
+        ]
+      },
+      uploadVisible:false,
+      uploadImageUrl:""
     }
   },
   methods:{
-
     getData(){
       let params = {}
       if(this.filters.product_name){
@@ -74,13 +209,35 @@ export default {
     },
     handleSelectionChange(selected){
       this.selectList = selected
+    },
+    handleAdd(){
+      this.addFormVisible = true;
+    },
+    handleBrandCommand(item){
+      this.addForm.brand_id = item.brand_id;
+      this.selectBrand = item.brand_name;
+    },
+    handleCategoryCommand(item){
+      this.addForm.category_id = item.category_id;
+      this.selectCategory = item.category_name;
+    },
+    handleRemove(file,fileList){
+      console.log(file,fileList)
+    },
+    handlePictureCardPreview(file){
+      this.uploadImageUrl = file.url;
+      this.uploadVisible = true;
     }
   },
   mounted() {
     this.getData()
         .then(response => {
           if (response.data.errno === 0){
-            this.data=response.data.data
+            this.data = response.data.data.product;
+            this.images = response.data.data.images;
+            this.brand = response.data.data.brand;
+            this.category = response.data.data.category;
+            console.log(this.brand)
           }
           //TODO:加载失败
         })

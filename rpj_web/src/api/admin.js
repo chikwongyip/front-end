@@ -8,7 +8,9 @@ const headers = {
 
 
 //TODO:handle productList select insert update delete
-export const getProductList = params => { return axios.get(`${base}/admin/productList`,{params:params})}
+export const getProductList = (params) => {
+    return axios.get(`${base}/admin/productList`,{params:params})
+}
 //TODO:handle company select insert update delete
 export const getCompany = (params) => {
     return axios.get(`${base}/admin/company`,{params:params})
