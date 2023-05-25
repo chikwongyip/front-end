@@ -108,11 +108,16 @@
         <el-form-item>
           <el-upload
               action=""
+              :multiple="true"
+              :auto-upload="false"
+              :show-file-list="true"
+              :limit="6"
+              :file-list="fileList"
               list-type="picture-card"
               :on-preview="handlePictureCardPreview"
+              :on-change="handleChange"
               :on-remove="handleRemove"
               :before-upload="beforeUpload"
-              :http-request="uploadFile"
               ref="files">
               <i class="el-icon-plus"></i>
           </el-upload>
@@ -150,6 +155,7 @@ export default {
       brand:[],
       category:[],
       logoUrl:"",
+      fileList:[],
       previewImgList:[],
       addFormVisible:false,
       addFormLoading:false,
@@ -161,7 +167,8 @@ export default {
         product_name:"",
         product_desc:"",
         product_standard:"",
-        product_model:""
+        product_model:"",
+        fileList:[]
       },
       // 增加校验逻辑
       addFormRules:{
@@ -222,11 +229,40 @@ export default {
       this.selectCategory = item.category_name;
     },
     handleRemove(file,fileList){
-      console.log(file,fileList)
+      console.log(file,fileList);
+    },
+    handleChange(fileList){
+      this.fileList.push(fileList);
     },
     handlePictureCardPreview(file){
       this.uploadImageUrl = file.url;
       this.uploadVisible = true;
+    },
+    beforeUpload(file){
+      const isJpeg = file.type === "image/png" || file.type === "image/jpg";
+      if(isJpeg){
+        this.$message.error("请选择正确文件格式上传")
+      }
+    },
+    addSubmit(){
+      this.$refs.addForm.validate(isValid => {
+        if (isValid){
+          this.$confirm("确认提交？","提示",{}).then(()=>{
+            this.addFormLoading = "true";
+            let formData = new FormData();
+            formData.append("top",this.addForm.top);
+            formData.append("product_name",this.addForm.product_name);
+            formData.append("brand_id",this.addForm.brand_id);
+            formData.append("category_id",this.addForm.category_id);
+            formData.append("product_desc",this.addForm.product_desc);
+            formData.append("product_model",this.addForm.product_model);
+            formData.append("product_standard",this.addForm.product_standard);
+            this.addForm.fileList.forEach(file =>{
+              formData.append("files",file.raw)
+            })
+          })
+        }
+      })
     }
   },
   mounted() {
@@ -237,7 +273,6 @@ export default {
             this.images = response.data.data.images;
             this.brand = response.data.data.brand;
             this.category = response.data.data.category;
-            console.log(this.brand)
           }
           //TODO:加载失败
         })
