@@ -5,11 +5,14 @@ const headers = {
     'Content-Type': 'application/json;charset=UTF-8'
 };
 
-
-
 //TODO:handle productList select insert update delete
 export const getProductList = (params) => {
     return axios.get(`${base}/admin/productList`,{params:params})
+}
+export const addProductList = (params) => {
+    return axios.post(`${base}/admin/productAdd`,params,{
+        headers:{"Content-Type":"multipart/form-data"}
+    })
 }
 //TODO:handle company select insert update delete
 export const getCompany = (params) => {

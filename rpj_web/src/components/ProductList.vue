@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import { getProductList} from "@/api/admin";
+import { getProductList,addProductList} from "@/api/admin";
 
 export default {
   name:"ProductList",
@@ -155,8 +155,8 @@ export default {
       brand:[],
       category:[],
       logoUrl:"",
-      fileList:[],
       previewImgList:[],
+      fileList:[],
       addFormVisible:false,
       addFormLoading:false,
       addForm:{
@@ -218,6 +218,7 @@ export default {
       this.selectList = selected
     },
     handleAdd(){
+      this.fileList = [];
       this.addFormVisible = true;
     },
     handleBrandCommand(item){
@@ -228,18 +229,19 @@ export default {
       this.addForm.category_id = item.category_id;
       this.selectCategory = item.category_name;
     },
-    handleRemove(file,fileList){
-      console.log(file,fileList);
+    handleRemove(file){
+      const index = this.fileList.indexOf(file);
+      this.fileList.splice(index,1);
     },
-    handleChange(fileList){
-      this.fileList.push(fileList);
+    handleChange(file){
+      this.fileList.push(file)
     },
     handlePictureCardPreview(file){
       this.uploadImageUrl = file.url;
       this.uploadVisible = true;
     },
     beforeUpload(file){
-      const isJpeg = file.type === "image/png" || file.type === "image/jpg";
+      const isJpeg = file.type === "image/png" || file.type === "image/jpg" || file.type === "image/dmg";
       if(isJpeg){
         this.$message.error("请选择正确文件格式上传")
       }
@@ -250,6 +252,7 @@ export default {
           this.$confirm("确认提交？","提示",{}).then(()=>{
             this.addFormLoading = "true";
             let formData = new FormData();
+            this.addForm.fileList = [];
             formData.append("top",this.addForm.top);
             formData.append("product_name",this.addForm.product_name);
             formData.append("brand_id",this.addForm.brand_id);
@@ -257,9 +260,24 @@ export default {
             formData.append("product_desc",this.addForm.product_desc);
             formData.append("product_model",this.addForm.product_model);
             formData.append("product_standard",this.addForm.product_standard);
-            this.addForm.fileList.forEach(file =>{
-              formData.append("files",file.raw)
+            this.fileList.forEach(file =>{
+              this.addForm.fileList.push(file.raw);
             })
+            formData.append("files",this.addForm.fileList)
+            addProductList(formData).then((response) => {
+              if(response.data.errno === 0){
+                this.$message({
+                  message:"更新成功",
+                  type:"success"
+                })
+              }
+            })
+                .catch(error => {
+                  this.$message({
+                    message:"更新失败" + error,
+                    type:"error"
+                  })
+                })
           })
         }
       })
