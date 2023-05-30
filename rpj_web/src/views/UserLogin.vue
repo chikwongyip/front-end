@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { userLogin} from "@/api/login";
 export default {
   data() {
     return {
@@ -31,7 +32,7 @@ export default {
         ],
         password: [
           { required: true, message: 'Please enter your password', trigger: 'blur' },
-          { min: 6, message: 'Password length should be at least 6 characters', trigger: 'blur' }
+          { min: 3, message: 'Password length should be at least 6 characters', trigger: 'blur' }
         ]
       }
     };
@@ -40,10 +41,29 @@ export default {
     handleSubmit() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          // perform login action
-          console.log(this.$data.loginForm.username)
+          let param = this.loginForm
+          userLogin(param).then(response => {
+            if (response.data.errno === 0){
+              this.$cookies.set("username",param.username)
+              this.$router.push('/admin');
+            }
+          })
+              .catch(error =>{
+                this.$message(
+                    {
+                      message:"登录失败！" + error,
+                      type:"error"
+                    }
+                )
+              })
         }
       });
+    }
+  },
+  mounted() {
+    const username = this.$cookies.get("username");
+    if (username){
+      this.$router.push('/admin')
     }
   }
 }

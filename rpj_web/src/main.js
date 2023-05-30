@@ -6,10 +6,11 @@ import App from './App.vue'
 import routes from "../src/routers/router"
 import axios from "axios";
 import VueAxios from "vue-axios";
+import VueCookies from "vue-cookies";
 Vue.use(VueAxios,axios)
 Vue.use(ElementUI)
 Vue.use(VueRouter)
-
+Vue.use(VueCookies,{expires:'7d'});
 const router = new VueRouter({
   mode:"history",
   routes
