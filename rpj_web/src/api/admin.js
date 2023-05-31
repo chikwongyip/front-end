@@ -15,8 +15,8 @@ export const addProductList = (params) => {
     })
 }
 //TODO:handle company select insert update delete
-export const getCompany = (params) => {
-    return axios.get(`${base}/admin/company`,{params:params})
+export const getCompany = () => {
+    return axios.get(`${base}/admin/company`)
 }
 export const editCompany = (params) =>{
     return axios.post(`${base}/admin/companyUpdate`,params,{

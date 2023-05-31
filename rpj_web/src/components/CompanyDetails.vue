@@ -1,36 +1,45 @@
 <template>
   <el-form ref="companyForm" :model="company" class="company_form">
+    <el-form-item label="id">
+      <el-input v-model="company.id" class="name" autocomplete="off" :disabled="true"></el-input>
+    </el-form-item>
     <el-form-item label="公司名称" class="item">
       <el-input v-model="company.name"  class="name"></el-input>
     </el-form-item>
-    <el-form-item label="公司介绍" class="item">
-      <el-input type="textarea" :rows="4" placeholder="请输入内容" :model="company.description" class="description"></el-input>
+    <el-form-item label="公司简介" class="item">
+      <el-input type="textarea" :rows="15" placeholder="请输入内容" v-model="company.description" class="description"></el-input>
     </el-form-item>
     <el-form-item label="ICP" class="item">
       <el-input v-model="company.icp"  class="name"></el-input>
     </el-form-item>
-    <el-form-item label="tel" class="item">
+    <el-form-item label="电话" class="item">
       <el-input v-model="company.tel"  class="name"></el-input>
     </el-form-item>
-    <el-form-item label="address" class="item">
-      <el-input type="textarea" :rows="4" placeholder="请输入内容" :model="company.address" class="description"></el-input>
+    <el-form-item label="地址" class="item">
+      <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="company.address" class="description"></el-input>
     </el-form-item>
-    <el-form-item label="email" class="item">
+    <el-form-item label="邮件地址" class="item">
       <el-input v-model="company.email"  class="name"></el-input>
     </el-form-item>
     <el-form-item label = "logo" class="item">
       <el-upload
-          class="upload-demo"
-          name="logo"
           action=""
+          :multiple="false"
+          :auto-upload="false"
+          :show-file-list="true"
+          :limit="1"
+          :file-list="fileList"
+          list-type="picture-card"
+          :on-preview="handlePictureCardPreview"
+          :on-change="handleChange"
+          :on-remove="handleRemove"
           :before-upload="beforeUpload"
-          :show-file-list="false"
-          :http-request="uploadFile"
           ref="logo">
-        <img v-if="previewUrl" :src="previewUrl" style="max-width: 100%">
-        <el-button v-else>选取文件</el-button>
-        <div slot="tip" class="el-upload__tip">JPG/PNG/BMP 图片格式，不超过 5MB</div>
+        <i class="el-icon-plus"></i>
       </el-upload>
+      <el-dialog :visible.sync="uploadVisible">
+        <img width="100%" :src=uploadImageUrl alt="">
+      </el-dialog>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="onSubmit('companyForm')">修改</el-button>
@@ -48,14 +57,18 @@ export default {
       formData:{},
       logo:{},
       previewUrl:"",
+      fileList:[],
+      uploadVisible:false,
+      uploadImageUrl:"",
       company: {
+        id:'',
         name: '',
         description: '',
         icp: '',
         tel: '',
         address: "",
         email: '',
-        logo: '',
+        logo: {},
         thumb_logo: ''
       }
     }
@@ -65,15 +78,19 @@ export default {
       this.$refs[formName].validate((isValid) => {
         if (isValid){
           this.formData = new FormData()
+          this.formData.append("id",this.company.id)
           this.formData.append("name",this.company.name)
           this.formData.append("description",this.company.description)
           this.formData.append("icp",this.company.icp)
           this.formData.append("tel",this.company.tel)
           this.formData.append("address",this.company.address)
           this.formData.append("email",this.company.email)
-          this.formData.append("logo",this.logo)
+          if(this.fileList[0]){
+            this.formData.append("logo",this.fileList[0].raw)
+          }
+          console.log(this.formData)
           editCompany(this.formData).then((response) => {
-            if(response.data.errno === 1){
+            if(response.data.errno === 0){
               this.$message({
                 message:"更新成功",
                 type:"success"
@@ -90,8 +107,9 @@ export default {
       })
     },
     getData(){
-      getCompany({id:1}).then((response) => {
-        if(response.data.errno === 1){
+      getCompany().then((response) => {
+        if(response.data.errno === 0){
+          this.company.id = response.data.data[0].id
           this.company.name = response.data.data[0].name
           this.company.description = response.data.data[0].description
           this.company.icp = response.data.data[0].icp
@@ -101,7 +119,7 @@ export default {
           this.company.email = response.data.data[0].email
         }
       })
-          .then((error) => {
+          .catch((error) => {
             this.$message(
                 {
                   message:error+"获取失败",
@@ -124,8 +142,16 @@ export default {
       }
       return true;
     },
-    uploadFile(file){
-      this.logo=file.file
+    handleRemove(file) {
+      const index = this.fileList.indexOf(file);
+      this.fileList.splice(index,1);
+    },
+    handleChange(file) {
+      this.fileList.push(file);
+    },
+    handlePictureCardPreview(file) {
+      this.uploadImageUrl = file.url;
+      this.uploadVisible = true;
     }
   },
   mounted() {
