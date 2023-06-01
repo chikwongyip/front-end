@@ -44,7 +44,7 @@ export default {
           let param = this.loginForm
           userLogin(param).then(response => {
             if (response.data.errno === 0){
-              this.$cookies.set("username",param.username)
+              localStorage.token = response.data.data.token;
               this.$router.push('/admin');
             }
           })

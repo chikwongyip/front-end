@@ -4,14 +4,26 @@ const headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
 };
-
+axios.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem("token");
+        if(token){
+            config.headers.authorization = "Bearer" + token;
+        }
+        return config;
+    },
+    error => Promise.reject(error)
+)
 //TODO:handle productList select insert update delete
 export const getProductList = (params) => {
     return axios.get(`${base}/admin/productList`,{params:params})
 }
 export const addProductList = (params) => {
     return axios.post(`${base}/admin/productAdd`,params,{
-        headers:{"Content-Type":"multipart/form-data"}
+        headers:{
+            authorization:localStorage.getItem("token"),
+            "Content-Type":"multipart/form-data"
+        }
     })
 }
 //TODO:handle company select insert update delete
@@ -24,7 +36,9 @@ export const editCompany = (params) =>{
     })
 }
 // brand
-export const getBrandList = params => { return axios.get(`${base}/admin/brandList`, { params: params })}
+export const getBrandList = params => {
+    return axios.get(`${base}/admin/brandList`, { params: params })
+}
 export const updateBrand = (params) => {
     return axios.post(`${base}/admin/brandUpdate`,params,{headers} )
 }
