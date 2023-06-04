@@ -1,9 +1,9 @@
 import axios from 'axios'
 let base = "http://localhost:8000/api";
-const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json;charset=UTF-8'
-};
+// const headers = {
+//     Accept: 'application/json',
+//     'Content-Type': 'application/json;charset=UTF-8'
+// };
 axios.interceptors.request.use(
     config => {
         const token = localStorage.getItem("token");
@@ -14,19 +14,24 @@ axios.interceptors.request.use(
     },
     error => Promise.reject(error)
 )
-//TODO:handle productList select insert update delete
+//TODO:change interface sending format to formData
+//product
 export const getProductList = (params) => {
     return axios.get(`${base}/admin/productList`,{params:params})
 }
 export const addProductList = (params) => {
     return axios.post(`${base}/admin/productAdd`,params,{
         headers:{
-            authorization:localStorage.getItem("token"),
             "Content-Type":"multipart/form-data"
         }
     })
 }
-//TODO:handle company select insert update delete
+export const deleteProduct = params => {
+    return axios.post(`${base}/admin/productDel`,params,{
+        headers:{"Content-Type":"multipart/form-data"}
+    })
+}
+//company
 export const getCompany = () => {
     return axios.get(`${base}/admin/company`)
 }
@@ -40,19 +45,27 @@ export const getBrandList = params => {
     return axios.get(`${base}/admin/brandList`, { params: params })
 }
 export const updateBrand = (params) => {
-    return axios.post(`${base}/admin/brandUpdate`,params,{headers} )
+    return axios.post(`${base}/admin/brandUpdate`,params,{
+        "Content-Type":"multipart/form-data"
+    })
 }
 export const addBrand = ( params ) => {
     return axios.post(`${base}/admin/brandAdd`,params,{
         headers:{"Content-Type":"multipart/form-data"}
     })
 }
-export const deleteBrand = params => { return axios.post(`${base}/admin/brandDelete`,params ) }
+export const deleteBrand = params => {
+    return axios.post(`${base}/admin/brandDelete`,params,{
+        "Content-Type":"multipart/form-data"
+    })
+}
 //category list
-export const getCategoryList = params => { return axios.get(`${base}/admin/categoryList`,{params:params})}
+export const getCategoryList = params => {
+    return axios.get(`${base}/admin/categoryList`,{params:params})
+}
 export const updateCategory = (params) => {
     return axios.post(`${base}/admin/categoryUpdate`,params,{
-        headers
+        headers:{"Content-Type":"multipart/form-data"}
     })
 }
 export const addCategory = (params) => {
@@ -61,5 +74,7 @@ export const addCategory = (params) => {
     })
 }
 export const deleteCategory = (params) =>{
-    return axios.post((`${base}/admin/categoryDel`,params,{ headers:{headers}}))
+    return axios.post(`${base}/admin/categoryDel`,params,{
+        headers:{"Content-Type":"multipart/form-data"}
+    })
 }

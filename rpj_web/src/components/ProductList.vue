@@ -24,6 +24,12 @@
       <el-table-column prop="product_desc" label="产品描述" width="1000"></el-table-column>
       <el-table-column prop="product_standard" label="产品标准参数" width="300"></el-table-column>
       <el-table-column prop="product_model" label="产品型号" width="80"></el-table-column>
+      <el-table-column label="操作" width="150">
+        <template scope="scope">
+          <el-button size="small" @click="handleEdit(scope.index, scope.row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleDel(scope.index, scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
         :layout="'total, sizes, prev, pager, next, jumper'"
@@ -135,7 +141,7 @@
 </template>
 
 <script>
-import { getProductList,addProductList} from "@/api/admin";
+import {getProductList, addProductList,deleteProduct} from "@/api/admin";
 
 export default {
   name:"ProductList",
@@ -144,6 +150,8 @@ export default {
       filters:{
         product_name:"",
       },
+      selectID: "",
+      selectedList:[],
       selectBrand:"请选择品牌",
       selectCategory:"请选择产品类型",
       currentPage:1,
@@ -220,6 +228,30 @@ export default {
     handleAdd(){
       this.fileList = [];
       this.addFormVisible = true;
+    },
+    handleEdit(index,row){
+      this.editForm = Object.assign({},row)
+      this.editFormVisible = true
+    },
+    handleDel(index,row){
+      let id = Object.assign({},row).product_id
+      if (id){
+        this.$confirm('确认删除该记录吗？','提示',{type:"warning"}
+        ).then(() => {
+          let param = {
+            product_id:id
+          }
+          deleteProduct(param).then(result =>{
+            if(result.data.errno === 0){
+              this.$message.success("删除成功!")
+              this.productList.splice(index,1)
+            }
+            this.$message.error("删除失败！" + result.data.message)
+          })
+
+        })
+      }
+      this.selectID = null
     },
     handleBrandCommand(item){
       this.addForm.brand_id = item.brand_id;

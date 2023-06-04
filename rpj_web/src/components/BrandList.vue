@@ -59,21 +59,27 @@
         </el-form-item>
         <el-form-item>
           <el-upload
-              class="upload-demo"
-              name="file"
               action=""
+              :multiple="true"
+              :auto-upload="false"
+              :show-file-list="true"
+              :limit="1"
+              :file-list="fileList"
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-change="handleUploadChange"
+              :on-remove="handleUploadRemove"
               :before-upload="beforeUpload"
-              :show-file-list="false"
-              :http-request="uploadFile"
-              ref="file">
-            <img v-if="previewUrl" :src="previewUrl" style="max-width: 100%">
-            <el-button v-else>选取文件</el-button>
-            <div slot="tip" class="el-upload__tip">JPG/PNG/BMP 图片格式，不超过 5MB</div>
+              ref="files">
+            <i class="el-icon-plus"></i>
           </el-upload>
+          <el-dialog :visible.sync="uploadVisible">
+            <img width="100%" :src=uploadImageUrl alt="">
+          </el-dialog>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="addForm = false">取消</el-button>
+        <el-button @click.native="addFormVisible = false">取消</el-button>
         <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
       </div>
     </el-dialog>
@@ -97,6 +103,9 @@ export default {
       listLoading:false,        //加载brand list动画
       selectID: "",
       selectedList:[],
+      fileList:[],
+      uploadVisible:false,
+      uploadImageUrl:"",
       //edit
       editFormVisible:false, //编辑界面显示控制
       editLoading:false,     //编辑加载画面
@@ -109,7 +118,8 @@ export default {
       // 编辑后返回内容
       editForm:{
         brand_id:'',   //不可编辑
-        brand_name:''
+        brand_name:'',
+        image:{}
       },
     //  add
       addFormVisible:false, //添加界面显示控制
@@ -166,18 +176,19 @@ export default {
       if (id){
         this.$confirm('确认删除该记录吗？','提示',{type:"warning"}
         ).then(() => {
-          let param = {
-            brand_id:id
-          }
+          let param = new FormData()
+          param.append("brand_id",id)
           deleteBrand(param).then(result =>{
             if(result.data.errno === 0){
-              console.log("delete success " + index + row)
               this.brandList.splice(index,1)
+              this.$message.success("删除成功")
             }
-            console.log("delete fail")
+            this.$message.error("删除失败")
           })
-
         })
+            .catch(err => {
+              this.$message.error(err)
+            })
       }
       this.selectID = null
     },
@@ -187,11 +198,12 @@ export default {
       this.editFormVisible = true
     },
     handleAdd(){
-
       this.addFormVisible = true
+      this.addLoading = false
       this.addForm = {
         brand_name: ""
       }
+      this.fileList = []
     },
     editSubmit(formName){
       this.$refs[formName].validate((valid) =>{
@@ -199,8 +211,9 @@ export default {
               this.$confirm("确认提交吗？","提示",{}).then(
                   () => {
                     this.editLoading = true
-                    let param = JSON.stringify(this.editForm)
-                    // let param = this.editForm
+                    let param = new FormData()
+                    param.append("brand_id",this.editForm.brand_id)
+                    param.append("brand_name",this.editForm.brand_name)
                     updateBrand(param).then((response) =>{
                       this.editLoading = false
                       if(response.data.errno === 0){
@@ -213,23 +226,24 @@ export default {
                         this.getData()
                       }
                     })
+                        .catch(err => {
+                          this.$message.error(err)
+                        })
                   }
               )
             }
           }
       )
     },
-    uploadFile(file){
-      this.formData = new FormData
-      this.formData.append("brand_name",this.addForm.brand_name)
-      this.formData.append("file",file.file)
-    },
     addSubmit(){
       this.$refs.addForm.validate((isValid) => {
         if(isValid){
           this.$confirm("确认提交？","提示",{}).then(() => {
             this.addLoading = true;
-            addBrand(this.formData).then((response) => {
+            let param = new FormData()
+            param.append("brand_name",this.addForm.brand_name)
+            param.append("brand_image",this.fileList[0].raw)
+            addBrand(param).then((response) => {
             if (response.data.errno === 0){
               this.addLoading = false
               this.$message({
@@ -237,11 +251,18 @@ export default {
                 type:"success"
               })
               this.$refs['addForm'].resetFields()
+              this.fileList = []
               this.addLoading= false
-              this.getData()
               }
             })
           })
+              .catch( () => {
+                this.$message({
+                  message:"提交失败！",
+                  type:"error"
+                })
+                this.addLoading= false
+              })
         }
       })
     },
@@ -258,8 +279,19 @@ export default {
         this.$message.error('上传图片大小不能超过2MB！');
         return false;
       }
-      this.addForm.image = file.file
       return true;
+    },
+    handleUploadChange(file){
+      this.fileList.push(file)
+      console.log(this.fileList)
+    },
+    handleUploadRemove(file){
+      const index = this.fileList.indexOf(file);
+      this.fileList.splice(index,1);
+    },
+    handlePictureCardPreview(file){
+      this.uploadImageUrl = file.url;
+      this.uploadVisible = true;
     },
     handleCurrentChange(value){
       this.currentPage = value;
