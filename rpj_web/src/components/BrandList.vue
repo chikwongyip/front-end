@@ -182,8 +182,9 @@ export default {
             if(result.data.errno === 0){
               this.brandList.splice(index,1)
               this.$message.success("删除成功")
+            }else{
+              this.$message.error(result.data.message)
             }
-            this.$message.error("删除失败")
           })
         })
             .catch(err => {
