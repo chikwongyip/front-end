@@ -184,6 +184,7 @@ export default {
               this.$message.success("删除成功")
             }else{
               this.$message.error(result.data.message)
+              this.$router.push('/login');
             }
           })
         })
@@ -225,6 +226,8 @@ export default {
                         this.$refs[formName].resetFields()
                         this.editFormVisible = false
                         this.getData()
+                      }else{
+                        this.$router.push('/login');
                       }
                     })
                         .catch(err => {
@@ -254,6 +257,8 @@ export default {
               this.$refs['addForm'].resetFields()
               this.fileList = []
               this.addLoading= false
+              }else{
+                this.$router.push('/login');
               }
             })
           })
