@@ -3,7 +3,7 @@
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
       <el-form :inline="true" :model="filters">
         <el-form-item>
-          <el-input v-model="filters.brand_name" placeholder="品牌名称"></el-input>
+          <el-input v-model="filters.category_name" placeholder="产品类别名称"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" v-on:click="getData">查询</el-button>
@@ -52,22 +52,31 @@
     <!-- 新增界面   -->
     <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
       <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-        <el-form-item label="品牌名称" prop="brand_name">
-          <el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
+        <el-form-item label="类别ID">
+          <el-input v-model="addForm.category_id" auto-complete="off" disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="类别名称" prop="category_name">
+          <el-input v-model="addForm.category_name" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item>
           <el-upload
-              class="upload-demo"
-              name="file"
               action=""
+              :multiple="true"
+              :auto-upload="false"
+              :show-file-list="true"
+              :limit="1"
+              :file-list="fileList"
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-change="handleUploadChange"
+              :on-remove="handleUploadRemove"
               :before-upload="beforeUpload"
-              :show-file-list="false"
-              :http-request="uploadFile"
-              ref="file">
-            <img v-if="previewUrl" :src="previewUrl" style="max-width: 100%">
-            <el-button v-else>选取文件</el-button>
-            <div slot="tip" class="el-upload__tip">JPG/PNG/BMP 图片格式，不超过 5MB</div>
+              ref="files">
+            <i class="el-icon-plus"></i>
           </el-upload>
+          <el-dialog :visible.sync="uploadVisible">
+            <img width="100%" :src=uploadImageUrl alt="">
+          </el-dialog>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -86,7 +95,7 @@ export default {
   data(){
     return{
       data:[],
-      formData:{},
+      fileList:[],
       filters:{
         category_name:""
       },
@@ -99,7 +108,6 @@ export default {
       editForm:{
         category_id:"",
         category_name:"",
-        file:{}
       },
       editFormRules:{
         category_name:[
@@ -113,7 +121,6 @@ export default {
       addForm:{
         category_id:"",
         category_name:"",
-        file:{}
       },
       addFormRules:{
         category_name:[
@@ -123,7 +130,8 @@ export default {
         ]
       },
       previewUrl:"",
-
+      uploadImageUrl:"",
+      uploadVisible:false
     }
   },
   methods:{
@@ -134,58 +142,83 @@ export default {
           category_name:this.filters.category_name
         }
       }
-      return getCategoryList(param)
-    },
-    handleCurrentChange(value){
-      this.currentPage = value;
-    },
-    handleSizeChange(value){
-      this.pageSize = value
+      this.listLoading = true
+      getCategoryList(param).then(response => {
+        if(response.data.errno === 0){
+          this.data = response.data.data
+          this.listLoading = false
+        }else{
+          this.$message({
+            message:response.data.message,
+            type:"error"
+          })
+          this.listLoading = false
+          this.$router.push('/login')
+        }
+      })
+          .catch(err => {
+            this.listLoading = false
+            this.$message({
+              type:"error",
+              message:`${err} 加载失败，请联系管理员`
+            })
+          })
     },
     handleSelectionChange(selected) {
       this.selectedList = selected
-    },
-    handleEdit(index, row) {
-      this.editFormVisible = true
-      this.editForm.category_id = Object.assign({},row).brand_id
-      this.editForm.category_name = Object.assign({},row).brand_name
-    },
-    handleAdd() {
-      this.addFormVisible=true
     },
     handleDel(index, row) {
       this.$confirm("确认删除吗","提示",{}).then( () =>
       {
         let category_id = Object.assign({},row).category_id
-        let params = {
-          category_id:category_id
-        }
-        deleteCategory(params).then((response) =>{
-          if(response.data.errno === 1){
+        let param = new FormData()
+        param.append("category_id",category_id)
+        deleteCategory(param).then((response) =>{
+          if(response.data.errno === 0){
             this.$message({
               message:"删除成功",
               type:"success"
             })
+          }else{
+            this.$message({
+              message:"删除失败",
+              type:"error"
+            })
+            this.$router.push('/login')
           }
         })
             .catch((error) => {
               this.$message(
                   {
-                    message:error+"删除失败",
+                    message:error+"后台请求失败，请联系管理员",
                     type:"error"
                   }
               )
             })
       })
     },
+    handleEdit(index, row) {
+      this.editFormVisible = true
+      this.editForm.category_id = Object.assign({},row).category_id
+      this.editForm.category_name = Object.assign({},row).category_name
+    },
+    handleAdd() {
+      this.addFormVisible = true
+      this.addFormLoading = false
+      this.addForm.category_id = ""
+      this.addForm.category_name = ""
+      this.fileList = []
+    },
     editSubmit(formName){
       this.$refs[formName].validate((valid) => {
         if(valid){
           this.$confirm("确认提交吗？","提示",{}).then( () =>
               {
-                let param = JSON.stringify(this.editForm)
+                let param = new FormData()
+                param.append("category_id",this.editForm.category_id)
+                param.append("category_name",this.editForm.category_name)
                 updateCategory(param).then((response) =>{
-                  if(response.data.errno === 1){
+                  if(response.data.errno === 0){
                     this.$message({
                       message:"提交成功",
                       type:"success"
@@ -193,6 +226,8 @@ export default {
                     this.$refs[formName].resetFields()
                     this.editFormVisible = false
                     this.getData()
+                  }else{
+                    this.$router.push('/login')
                   }
                 })
                     .catch((error) =>{
@@ -204,6 +239,39 @@ export default {
                     })
               }
           )
+        }
+      })
+    },
+    addSubmit(formName) {
+      this.$refs(formName).validate((valid) => {
+        if (valid){
+          this.$confirm("确认提交吗？","提示",{}).then(() =>{
+            this.addFormLoading = true
+            let param = new FormData()
+            param.append("category_name",this.addForm.category_name)
+            param.append("category_image",this.fileList[0].raw)
+            addCategory(param).then((response) => {
+              if (response.data.errno === 0){
+                this.addFormLoading = false
+                this.$message({
+                  message:"添加成功",
+                  type:"success"
+                })
+                this.$refs[formName].resetFields()
+                this.fileList = []
+                this.addFormLoading = false
+              }else {
+                this.$router.push('/login')
+              }
+            })
+                .catch((err) =>{
+                  this.$message({
+                    message:err + "添加失败",
+                    type:"error"
+                  })
+                  this.addFormLoading = false
+                })
+          })
         }
       })
     },
@@ -221,45 +289,27 @@ export default {
       }
       return true;
     },
-    uploadFile(file) {
-      this.formData = {}
-      this.formData = new FormData()
-      this.formData.append("category_name",this.addForm.category_name)
-      this.formData.append("file",file.file)
+    handleUploadChange(file) {
+      this.fileList.push(file)
     },
-    addSubmit(formName) {
-      this.$refs(formName).validate((valid) => {
-        if (valid){
-          this.$confirm("确认提交吗？","提示",{}).then(() =>{
-            this.addFormLoading = true
-            addCategory(this.formData).then((response) => {
-              if (response.data.errno === 0){
-                this.data = response.data
-                this.addFormLoading = true
-              }
-            })
-                .catch((err) =>{
-                  this.$message({
-                    message:err + "添加失败",
-                    type:"error"
-                  })
-                })
-          })
-        }
-      })
+    handleUploadRemove(file) {
+      const index = this.fileList.indexOf(file)
+      this.fileList.splice(index,1)
+    },
+    handlePictureCardPreview(file){
+      this.uploadImageUrl = file.url
+      this.uploadVisible = true
+    },
+    handleCurrentChange(value){
+      this.currentPage = value;
+    },
+    handleSizeChange(value){
+      this.pageSize = value
     }
   },
   mounted() {
     this.getData()
-        .then(response => {
-          if (response.data.errno === 0){
-            this.data= response.data.data
-          }
-          //TODO:加载失败
-        })
-        .catch(error => {
-          console.log(error)
-        })
+
   },
   computed:{
     category_list(){

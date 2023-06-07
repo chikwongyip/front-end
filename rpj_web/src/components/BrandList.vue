@@ -289,7 +289,6 @@ export default {
     },
     handleUploadChange(file){
       this.fileList.push(file)
-      console.log(this.fileList)
     },
     handleUploadRemove(file){
       const index = this.fileList.indexOf(file);
