@@ -6,6 +6,26 @@
           <el-input v-model="filters.product_name" placeholder="产品名称"></el-input>
         </el-form-item>
         <el-form-item>
+          <el-dropdown split-button type="primary" @command="handleBrandCommand">
+            {{ selectBrand }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="(item,brand_id) in brand" :key="brand_id" :data-item="brand" :command="item">
+                {{item.brand_name}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+        <el-form-item>
+          <el-dropdown split-button type="primary" @command="handleCategoryCommand">
+            {{ selectCategory }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="(item,category_id) in category" :key="category_id" :data-item="category" :command="item">
+                {{item.category_name}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+        <el-form-item>
           <el-button type="primary" v-on:click="getData">查询</el-button>
         </el-form-item>
         <el-form-item>
@@ -133,7 +153,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="addForm = false">取消</el-button>
+        <el-button @click.native="addFormVisible = false">取消</el-button>
         <el-button type="primary" @click.native="addSubmit" :loading="addFormLoading">提交</el-button>
       </div>
     </el-dialog>
@@ -149,6 +169,8 @@ export default {
     return{
       filters:{
         product_name:"",
+        brand_id:"",
+        category_id:"",
       },
       selectID: "",
       selectedList:[],
@@ -208,13 +230,25 @@ export default {
   },
   methods:{
     getData(){
-      let params = {}
-      if(this.filters.product_name){
-        params = {
-          product_name: this.filters.product_name
-        }
+      let param = {
+        product_name:this.filters.product_name,
+        brand_id:this.filters.brand_id,
+        category_id:this.filters.category_id
       }
-      return getProductList(params)
+      // let param = new FormData()
+      // if(this.filters.product_name){
+      //   param.append("product_name",this.filters.product_name);
+      // }
+      // if(this.filters.brand_id){
+      //   param.append("brand_id",this.filters.brand_id);
+      // }
+      // if(this.filters.category_id){
+      //   param.append("category_id",this.filters.category_id);
+      // }
+      // console.log(this.filters.category_id)
+      // console.log(this.filters.brand_id)
+      // console.log(this.filters.product_name)
+      return getProductList(param)
     },
     handleCurrentChange(value){
       this.currentPage = value
@@ -256,10 +290,13 @@ export default {
     handleBrandCommand(item){
       this.addForm.brand_id = item.brand_id;
       this.selectBrand = item.brand_name;
+      this.filters.brand_id = item.brand_id;
+
     },
     handleCategoryCommand(item){
       this.addForm.category_id = item.category_id;
       this.selectCategory = item.category_name;
+      this.filters.category_id = item.category_id;
     },
     handleRemove(file){
       const index = this.fileList.indexOf(file);

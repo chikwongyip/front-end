@@ -17,7 +17,10 @@ axios.interceptors.request.use(
 //TODO:change interface sending format to formData
 //product
 export const getProductList = (params) => {
-    return axios.get(`${base}/admin/productList`,{params:params})
+    console.log(params)
+    return axios.get(`${base}/admin/productList`,{
+        params:params
+    })
 }
 export const addProductList = (params) => {
     return axios.post(`${base}/admin/productAdd`,params,{
