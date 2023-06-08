@@ -52,9 +52,6 @@
     <!-- 新增界面   -->
     <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
       <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-        <el-form-item label="类别ID">
-          <el-input v-model="addForm.category_id" auto-complete="off" disabled="true"></el-input>
-        </el-form-item>
         <el-form-item label="类别名称" prop="category_name">
           <el-input v-model="addForm.category_name" auto-complete="off"></el-input>
         </el-form-item>
@@ -100,7 +97,7 @@ export default {
         category_name:""
       },
       currentPage:1,           //当前页
-      pageSize:2,             //每页显示条数
+      pageSize:10,             //每页显示条数
       listLoading:false,
       selectedList:[],
       editLoading:false,
@@ -243,7 +240,7 @@ export default {
       })
     },
     addSubmit(formName) {
-      this.$refs(formName).validate((valid) => {
+      this.$refs[formName].validate((valid) => {
         if (valid){
           this.$confirm("确认提交吗？","提示",{}).then(() =>{
             this.addFormLoading = true
