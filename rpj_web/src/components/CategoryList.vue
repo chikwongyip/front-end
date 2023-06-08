@@ -77,7 +77,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="addForm = false">取消</el-button>
+        <el-button @click.native="addFormVisible= false">取消</el-button>
         <el-button type="primary" @click.native="addSubmit('addForm')" :loading="addFormLoading">提交</el-button>
       </div>
     </el-dialog>
