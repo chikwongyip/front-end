@@ -26,7 +26,7 @@
           </el-dropdown>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" v-on:click="getData">查询</el-button>
+          <el-button type="primary" @click.prevent="search">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleAdd">新增</el-button>
@@ -172,6 +172,7 @@ export default {
         brand_id:"",
         category_id:"",
       },
+      searchResult:[],
       selectID: "",
       selectedList:[],
       selectBrand:"请选择品牌",
@@ -235,20 +236,24 @@ export default {
         brand_id:this.filters.brand_id,
         category_id:this.filters.category_id
       }
-      // let param = new FormData()
-      // if(this.filters.product_name){
-      //   param.append("product_name",this.filters.product_name);
-      // }
-      // if(this.filters.brand_id){
-      //   param.append("brand_id",this.filters.brand_id);
-      // }
-      // if(this.filters.category_id){
-      //   param.append("category_id",this.filters.category_id);
-      // }
-      // console.log(this.filters.category_id)
-      // console.log(this.filters.brand_id)
-      // console.log(this.filters.product_name)
       return getProductList(param)
+    },
+    search(){
+      this.searchResult = []
+      this.searchResult = this.data.filter(item =>{
+        if(this.filters.brand_id && this.filters.category_id){
+          if(item.brand_id === this.filters.brand_id && item.category_id === this.filters.category_id){
+            return item
+          }
+        }
+        if(this.filters.brand_id){
+          return item.brand_id === this.filters.brand_id
+        }
+        if(this.filters.category_id){
+          return item.category_id === this.filters.category_id
+        }
+      })
+      this.data = this.searchResult
     },
     handleCurrentChange(value){
       this.currentPage = value
@@ -366,6 +371,13 @@ export default {
         .catch(error => {
           console.log(error)
         })
+  },
+  watch:{
+    filter:{
+      handler(){
+        this.search();
+      }
+    }
   },
   computed:{
     productList(){
