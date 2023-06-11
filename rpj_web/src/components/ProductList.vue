@@ -255,7 +255,6 @@ export default {
       }
 
       if (this.filters.product_name){
-
         this.searchResult = []
         const regExp =new RegExp(this.filters.product_name,"g");
         this.searchResult = this.data.filter(item => {
