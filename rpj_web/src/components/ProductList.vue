@@ -239,21 +239,31 @@ export default {
       return getProductList(param)
     },
     search(){
-      this.searchResult = []
-      this.searchResult = this.data.filter(item =>{
-        if(this.filters.brand_id && this.filters.category_id){
-          if(item.brand_id === this.filters.brand_id && item.category_id === this.filters.category_id){
-            return item
-          }
-        }
-        if(this.filters.brand_id){
-          return item.brand_id === this.filters.brand_id
-        }
-        if(this.filters.category_id){
-          return item.category_id === this.filters.category_id
-        }
-      })
-      this.data = this.searchResult
+      if (this.filters.brand_id){
+        this.searchResult = []
+        this.searchResult = this.data.filter(item => {
+          return item.brand_id = this.filters.brand_id
+        })
+        this.data = this.searchResult
+      }
+      if (this.filters.category_id){
+
+        this.searchResult = this.data.filter(item => {
+          return item.category_id = this.filters.category_id
+        })
+        this.data = this.searchResult
+      }
+
+      if (this.filters.product_name){
+
+        this.searchResult = []
+        const regExp =new RegExp(this.filters.product_name,"g");
+        this.searchResult = this.data.filter(item => {
+          return regExp.test(item.product_name)
+        })
+        this.data = this.searchResult
+      }
+
     },
     handleCurrentChange(value){
       this.currentPage = value
