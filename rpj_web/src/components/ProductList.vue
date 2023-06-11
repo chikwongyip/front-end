@@ -91,7 +91,7 @@
     </el-dialog>
     <!-- 新增界面   -->
     <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
-      <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+      <el-form :model="addForm" label-width="200x" :rules="addFormRules" ref="addForm">
         <el-form-item label="产品名称" prop="product_name">
           <el-input v-model="addForm.product_name" auto-complete="off"></el-input>
         </el-form-item>
@@ -122,6 +122,7 @@
                     show-word-limit
                     v-model="addForm.product_desc"
                     auto-complete="off"
+                    :rows="20"
           >
           </el-input>
         </el-form-item>
@@ -131,7 +132,7 @@
         <el-form-item label="产品型号" prop="product_model">
           <el-input v-model="addForm.product_model" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item label="产品图片">
           <el-upload
               action=""
               :multiple="true"
