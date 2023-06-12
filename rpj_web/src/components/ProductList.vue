@@ -199,8 +199,7 @@ export default {
         product_name:"",
         product_desc:"",
         product_standard:"",
-        product_model:"",
-        fileList:[]
+        product_model:""
       },
       // 增加校验逻辑
       addFormRules:{
@@ -336,7 +335,6 @@ export default {
           this.$confirm("确认提交？","提示",{}).then(()=>{
             this.addFormLoading = "true";
             let formData = new FormData();
-            this.addForm.fileList = [];
             formData.append("top",this.addForm.top);
             formData.append("product_name",this.addForm.product_name);
             formData.append("brand_id",this.addForm.brand_id);
@@ -344,10 +342,9 @@ export default {
             formData.append("product_desc",this.addForm.product_desc);
             formData.append("product_model",this.addForm.product_model);
             formData.append("product_standard",this.addForm.product_standard);
-            this.fileList.forEach(file =>{
-              this.addForm.fileList.push(file.raw);
+            this.fileList.forEach((file,index)=>{
+              formData.append(`file${index}`,file.raw)
             })
-            formData.append("files",this.addForm.fileList)
             addProductList(formData).then((response) => {
               if(response.data.errno === 0){
                 this.$message({
