@@ -33,6 +33,9 @@ export const deleteProduct = params => {
         headers:{"Content-Type":"multipart/form-data"}
     })
 }
+export const editProduct = params => {
+    return axios.post(`${base}/admin/productEdit`)
+}
 //company
 export const getCompany = () => {
     return axios.get(`${base}/admin/company`)

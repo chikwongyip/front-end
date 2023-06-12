@@ -77,11 +77,35 @@
           <el-input v-model="editForm.product_name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="品牌">
-          <el-dropdown split-button type="primary" @command="handleBrandDropDown" :model="brand">
+          <el-dropdown split-button type="primary" @command="handleBrandCommand" :model="brand">
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-model="brand.brand_name"></el-dropdown-item>
               </el-dropdown-menu>
           </el-dropdown>
+        </el-form-item>
+        <el-form-item label="产品类型">
+          <el-dropdown split-button type="primary" @command="handleCategoryCommand" :model="category">
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-model="category.category_name"></el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+        <el-form-item label="产品描述">
+          <el-input type="textarea"
+                    placeholder="请输入产品描述"
+                    maxlength="500"
+                    show-word-limit
+                    v-model="editForm.product_desc"
+                    auto-complete="off"
+                    :rows="20"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="产品规格">
+          <el-input v-model="editForm.product_standard" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="产品型号">
+          <el-input v-model="editForm.product_model" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -208,7 +232,7 @@ export default {
         ]
       },
       editFormVisible:false,
-      editLoading:false,
+      editFormLoading:false,
       editForm:{
         top:"",
         product_id:"",
@@ -303,12 +327,14 @@ export default {
     },
     handleBrandCommand(item){
       this.addForm.brand_id = item.brand_id;
+      this.editForm.brand_id = item.brand_id;
       this.selectBrand = item.brand_name;
       this.filters.brand_id = item.brand_id;
 
     },
     handleCategoryCommand(item){
       this.addForm.category_id = item.category_id;
+      this.editForm.category_id = item.category_id
       this.selectCategory = item.category_name;
       this.filters.category_id = item.category_id;
     },
@@ -333,7 +359,7 @@ export default {
       this.$refs.addForm.validate(isValid => {
         if (isValid){
           this.$confirm("确认提交？","提示",{}).then(()=>{
-            this.addFormLoading = "true";
+            this.addFormLoading = true;
             let formData = new FormData();
             formData.append("top",this.addForm.top);
             formData.append("product_name",this.addForm.product_name);
@@ -359,6 +385,25 @@ export default {
                     type:"error"
                   })
                 })
+          })
+        }
+      })
+    },
+    editSubmit(){
+      this.$refs.editForm.validate( isValid => {
+        if (isValid){
+          this.$confirm("确认修改","提示",{}).then(() => {
+            this.editFormLoading = true;
+            let formData = new FormData();
+            formData.append("top",this.editForm.top);
+            formData.append("product_id",this.editForm.product_id);
+            formData.append("product_name",this.editForm.product_name);
+            formData.append("brand_id",this.editForm.brand_id);
+            formData.append("category_id",this.editForm.category_id);
+            formData.append("product_desc",this.editForm.product_desc);
+            formData.append("product_model",this.editForm.product_model);
+            formData.append("product_standard",this.editForm.product_standard);
+
           })
         }
       })
