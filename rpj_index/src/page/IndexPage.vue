@@ -1,10 +1,14 @@
 <template>
-  <el-container direction="vertical">
-    <MallHeader> </MallHeader>
-    <el-container direction="vertical">
-      <MallMain> </MallMain>
+  <el-container class="header">
+    <el-header >
+       <MallHeader></MallHeader>
+    </el-header>
+    <el-main>
+      <MallMain></MallMain>
+    </el-main>
+    <el-footer>
       <MallFooter></MallFooter>
-    </el-container>
+    </el-footer>
   </el-container>
 </template>
 
@@ -23,7 +27,7 @@ export default {
 </script>
 
 <style scoped>
-  body > .el-container {
-    margin-bottom: 40px;
+  .header{
+    margin-top: 10px;
   }
 </style>
