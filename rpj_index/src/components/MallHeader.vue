@@ -1,6 +1,6 @@
 <template>
   <el-header>
-    <div>
+    <el-header>
       <img src="" alt="" class="src">
       <el-input placeholder="输入名称搜索产品" class="input-with-select">
         <el-select v-model="select" slot="prepend" placeholder="请选择">
@@ -10,8 +10,6 @@
         </el-select>
         <el-button slot="append" icon="el-icon-search"></el-button>
       </el-input>
-    </div>
-    <div>
       <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
         <el-submenu index="1">
           <template slot="title">应用</template>
@@ -32,7 +30,7 @@
           <el-menu-item index="2-3">选项3</el-menu-item>
         </el-submenu>
       </el-menu>
-    </div>
+    </el-header>
   </el-header>
 </template>
 <script>
@@ -42,5 +40,9 @@ export default {
 </script>
 
 <style scoped>
-
+  .header{
+    background-image: -webkit-linear-gradient(#000, #121212);
+    background-image: linear-gradient(#000, #121212);
+    width: 100%;
+  }
 </style>
